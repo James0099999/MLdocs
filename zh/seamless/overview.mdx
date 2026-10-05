@@ -1,0 +1,46 @@
+---
+title: "Overview"
+---
+
+所有回调请求均以 JSON 数据形式通过 `POST` 方法发送。
+
+我们的 API 要求所有请求（无论成功与否）均返回 HTTP 状态码 `200`。其他任何 HTTP 状态码均视为失败。
+
+## **Request Header**
+
+| Key | Value | Description |
+| :-- | :-- | :-- |
+| `X-Request-Signature` | `Hash string` | `Signature string issued by our API. ` |
+| `Accept` | `application/json` | `Accept: application/json` |
+| `Content-Type` | `application/json` | `Content-Type: application/json` |
+
+## **验证回调请求签名**
+
+`X-Request-Signature` 请求头用于确保 API 请求的真实性和完整性。它包含一个 Base64 编码的 HMAC-SHA512 哈希值，运营商必须使用请求体及其密钥 API 令牌（`API_TOKEN`）生成该哈希。
+
+1. 从请求体中提取所有键和值
+   - 请求体必须是扁平的 JSON 对象（不得包含嵌套对象）。
+   - 请求体示例
+   ```bash
+   {
+     "amount": 1500,
+     "currency": "USD",
+     "playerId": "user123",
+     "timestamp": 1713792000
+   }
+   ```
+2. 按字母顺序对键进行排序
+   - 排序后的键：`["amount", "currency", "playerId", "timestamp"]`
+3. 按排序后的键顺序获取对应的值
+   - 值: `["1500", "USD", "user123", "1713792000"]`
+4. 用逗号将各值连接起来 (`"1500,USD,user123,1713792000"`)
+5. 使用 `API_TOKEN` 作为密钥，对该字符串生成 Base64 编码的 HMAC-SHA512 哈希
+   ```javascript
+   const crypto = require('crypto');
+   const apiToken = "my_super_secret_token";
+   const data = "1500,USD,user123,1713792000";
+   const hmac = crypto.createHmac('sha512', apiToken)
+                      .update(data)
+                      .digest('base64');
+   ```
+6. 将你生成的哈希字符串与 `X-Request-Signature` 请求头中提供的值进行比较。若两者不匹配，则表明该请求可能已被恶意方篡改或伪造。

@@ -1,0 +1,87 @@
+---
+title: "Balance"
+---
+
+我们会在玩家启动游戏时，以及游戏过程中每分钟发送一次余额回调，以保持界面显示的余额为最新。在返回玩家余额之前，您必须验证玩家的会话仍处于有效且已认证状态。除 OK 以外的任何状态码都会终止当前流程，并向玩家显示错误信息。
+
+**_无需在回调 URL 末尾添加“Balance”；您可以获取请求正文“command”来识别哪个回调即将到来。_**
+
+- **URL:** 您配置的回调 URL(ex: [**_https://mycallback.com/cb_**](https://mycallback.com/cb))
+- **Method:** POST
+- **Headers:** `X-Request-Signature`, `Content-Type`, `Accept`
+
+## Request parameters
+
+<ParamField body="command" type="string" required>
+  此回调类型始终为 `"balance"`。
+</ParamField>
+
+<ParamField body="playerId" type="string" required>
+  您系统中的玩家唯一标识符。
+</ParamField>
+
+<ParamField body="providerId" type="number" required>
+  我们系统中游戏提供商的唯一标识
+</ParamField>
+
+<ParamField body="gameCode" type="int" required>
+  我们系统中该游戏的唯一游戏 ID
+</ParamField>
+
+<ParamField body="timestamp" type="number" required>
+  请求的 Unix 时间戳。
+</ParamField>
+
+## Response fields
+
+您的服务器必须以 HTTP 200 响应，并在 JSON 正文中包含以下字段：
+
+<ResponseField name="balance" type="number">
+  玩家当前余额。
+</ResponseField>
+
+<ResponseField name="statusCode" type="string" required>
+  操作结果。成功时必须为 "OK"。所有可能的值请参见下方状态码表。
+</ResponseField>
+
+## Status codes
+
+| 状态码 | 说明 |
+| :-- | :-- |
+| `OK` | 请求成功 |
+| `ERR_INVALID_ACCOUNT` | 玩家货币与请求中的货币代码不匹配 |
+| `ERR_NOT_AUTHENTICATED` | 玩家未通过认证 |
+| `ERR_INVALID_PLAYER_ID` | 玩家 ID 无效 |
+| `ERR_INTEGRITY_CHECK_FAILED` | 消息完整性校验失败 |
+| `ERR_UNKNOWN` | 内部服务器错误 |
+
+<Note>
+  除 `OK` 以外的任何状态码均视为失败。不会安排重试——当前流程会立即终止，并向玩家显示错误信息。
+</Note>
+
+## Examples
+
+<CodeGroup>
+
+```json Request
+{
+  "command": "balance",
+  "playerId": "1101",
+  "timestamp": 1586335186372
+}
+```
+
+```json Success response
+{
+  "balance": 19839891,
+  "statusCode": "OK"
+}
+```
+
+```json Error response
+{
+  "statusCode": "ERR_INVALID_ACCOUNT"
+}
+```
+
+</CodeGroup>

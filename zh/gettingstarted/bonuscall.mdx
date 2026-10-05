@@ -1,0 +1,96 @@
+---
+title: "Bonus Call"
+---
+
+Bonus Call 功能可让你为玩家的当前游戏会话临时发放奖励。无论是用免费旋转欢迎新玩家，还是用保底赢奖活动做留存，Bonus Call 都提供了一套可控机制：通过真实对局发放激励，而不是直接给钱包加款。
+
+## 奖励类型
+
+我们支持两种 Bonus Call。请按需求选择：是提供零风险旋转，还是保证特定赢奖结果。
+
+<Tabs>
+  <Tab title="Free Spin Bonus（免费旋转奖励）">
+    向玩家发放指定游戏上的固定次数免费旋转。旋转由游戏引擎正常结算，与普通旋转相同，但不会扣玩家钱包——赢奖会自动入账。
+
+    **_Free Spin Bonus 目前仅支持 Pragmatic Play 游戏_**
+
+   主要特点：
+
+    - 为指定游戏给玩家分配固定次数旋转
+    - 每次旋转不会从玩家钱包扣款
+    - 免费旋转产生的赢奖会自动记入玩家钱包
+    - 单次投注额与总旋转次数由运营商预先设定
+    - 每次旋转结果仍按正常游戏 RTP 机制产生——不保证必赢
+
+    **典型场景:** 欢迎促销、新手引导、流失玩家召回激励。
+  </Tab>
+  <Tab title="Regular Bonus Call（常规 Bonus Call）">
+保证玩家获得指定赢奖金额，并通过真实对局执行发放，而非直接钱包加款。系统会运行真实旋转（含普通旋转及触发的奖励局），直到达到预设目标赢奖金额。
+
+    **_Regular Bonus Call 暂未开放，即将推出。_**
+
+    主要特点：
+
+    - 保证向玩家发放预设的**目标赢奖金额**
+    - 通过随机真实对局完成，含普通旋转及触发的奖励局
+    - 旋转次数与类型由游戏引擎动态决定
+    - 每次旋转会从玩家钱包扣款，与普通付费旋转相同
+    - 系统持续旋转，直到累计赢奖达到保证金额
+    - 所有投注与赢奖均按标准游戏交易记录
+
+    **工作流程（逐步）：**
+
+    1. 你发起带目标赢奖金额的 Regular Bonus Call
+    2. 系统通过游戏引擎执行真实旋转
+    3. 每次旋转从玩家钱包扣除投注额
+    4. 旋转及奖励局的赢奖按正常方式入账
+    5. 流程持续至保证赢奖金额全部发放完毕
+
+    **典型场景:** 保底赢奖促销、可控派彩的留存活动、需符合正常 RTP 行为的补偿场景、要求真实对局互动的促销活动。
+  </Tab>
+</Tabs>
+
+## 对比
+
+| 功能	 | Free Spin Bonus | Regular Bonus Call |
+| :-- | :-- | :-- |
+| 使用钱包余额 | No | Yes |
+| 保证结果 | No (win depends on spin results) | Yes (target win amount) |
+| 真实对局执行 | Yes | Yes |
+| 旋转类型 | Free spins only | Normal spins and bonus rounds |
+| 每次旋转扣投注 | No | Yes |
+| 运营商可控项 | Spin count | Target win amount |
+
+## 如何使用
+
+**注册 bonus call**
+
+调用 `POST /v1/bonus-call/register` 为玩家发起奖励。请求中需指定奖励类型（`FreeSpin` 或 `Regular`），以及对应参数——Free Spin Bonus 需旋转次数与投注额，Regular Bonus Call 需目标赢奖金额。注册后，奖励会在玩家当前或下一局游戏会话中生效。
+
+
+**取消  bonus call**
+
+若奖励仍在进行且尚未完成，可调用 `POST /v1/bonus-call/cancel` 取消。奖励一旦全部发放完成，则无法取消。
+
+完整请求与响应结构请参阅 [Register Bonus](https://docs.igamingace.com/zh/mainapi/bonus-call-register) 与 [Cancel Bonus](https://docs.igamingace.com/zh/mainapi/bonus-call-cancel) API 参考页。
+
+## Bonus call 生命周期规则
+
+<AccordionGroup>
+  <Accordion title="Free Spin Bonus lifecycle">
+    Free Spin Bonus 在注册时设定过期时间。
+
+    - 若玩家在过期前未用完全部免费旋转，系统会自动将奖励标记为过期
+    - 过期时剩余未使用旋转作废，且无法恢复
+    - 过期前已使用旋转产生的赢奖不受影响，仍保留在玩家钱包中
+  </Accordion>
+
+  <Accordion title="Regular Bonus Call lifecycle">
+    Regular Bonus Call 会一直保持有效，直至满足以下任一条件：
+
+    - 通过游戏对局已向玩家发放全部目标赢奖金额，或
+    - 在目标达成前到达过期时间
+
+    生效期间，奖励须自然完成，或通过 `POST /v1/bonus-call/cancel` 手动取消。未完成的 Regular Bonus Call 到期后，系统会自动关闭。
+  </Accordion>
+</AccordionGroup>

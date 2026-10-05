@@ -1,0 +1,23 @@
+---
+title: "Overview"
+---
+
+## HTTP 请求头
+
+每个 API 请求都必须包含以下三个 HTTP 请求头。您可以在后台管理账户的设置页面中核对您的 `API_TOKEN` 值。
+
+| 名称 | 值 | 示例 |
+| :-- | :-- | :-- |
+| `Authorization` | `Bearer {API_TOKEN}` | `Authorization: Bearer 60349266c8d9487eab7531b1a15d2480` |
+| `Accept` | `application/json` | `Accept: application/json` |
+| `Content-Type` | `application/json` | `Content-Type: application/json` |
+
+以下是使用这些请求头的示例请求：
+
+```bash
+curl --request GET \
+  --url https://api.gamecompany.com/v1/provider/list \
+  --header "Authorization: Bearer 60349266c8d9487eab7531b1a15d2480" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json"
+```

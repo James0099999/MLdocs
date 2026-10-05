@@ -1,0 +1,89 @@
+---
+title: "Game Launch"
+---
+
+该端点会为指定玩家和游戏生成安全的游戏启动 URL。拿到 URL 后，可将其嵌入站点的 iframe，或在新标签页中直接跳转打开。每次调用都会生成与所提供玩家、供应商和游戏绑定的会话级 URL。
+
+## Request
+
+```bash
+POST /v1/game/launch
+```
+
+### Headers
+
+| Name | Value |
+| :-- | :-- |
+| `Authorization` | `Bearer <API_TOKEN>` |
+| `Content-Type` | `application/json` |
+| `Accept` | `application/json` |
+
+### Request Body
+
+<ParamField body="playerId" type="string" required>
+  您系统中玩家的唯一标识符。 长度：1–50 个字符；允许的字符：A–Z、a–z、0–9、\_
+</ParamField>
+
+<ParamField body="providerId" type="number" required>
+  游戏供应商的唯一标识符。可通过 [List Providers](https://docs.igamingace.com/zh/mainapi/provider-list) 获取有效的供应商 ID。
+</ParamField>
+
+<ParamField body="gameId" type="number" required>
+  要启动的游戏唯一 ID。可通过 [List Games](https://docs.igamingace.com/mainapi/game-list) 获取有效的游戏 ID。
+</ParamField>
+
+<ParamField body="language" type="string" required>
+  游戏界面的语言代码（例如 `en`）。在供应商支持的情况下，游戏 UI 将以此语言呈现。
+</ParamField>
+
+<ParamField body="returnUrl" type="string" required>
+  URL to redirect the player after they exit the game.
+</ParamField>
+
+<ParamField body="isStreamer" type="bool" required>
+  玩家退出游戏后跳转的 URL。若 isStreamer 为 true，则该玩家的报表不计入代理报表，且玩家 RTP 可超过 100%。
+</ParamField>
+
+## Example Request
+
+```bash
+curl --request POST \
+  --url https://api.gamecompany.com/v1/game/launch \
+  --header "Authorization: Bearer <API_TOKEN>" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "playerId": "playerId_onOperatorSide",
+    "providerId": 1,
+    "gameId": 655,
+    "language": "en",
+    "returnUrl": "https://yourcasino.com/lobby",
+    "isStreamer": false
+  }'
+```
+
+## Response
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": "https://games.gamecompany.com/launch?token=123456..."
+}
+```
+
+### Response Fields
+
+<ResponseField name="success" type="bool">
+  表示请求是否处理成功。
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  请求结果消息（例如 `"OK"`）。
+</ResponseField>
+
+<ResponseField name="data" type="string">
+  游戏启动 URL。
+</ResponseField>

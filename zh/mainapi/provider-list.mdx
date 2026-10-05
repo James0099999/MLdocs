@@ -1,0 +1,75 @@
+---
+title: "Get Provider List"
+---
+
+使用此端点可检索您运营商账户中已启用的所有游戏提供商。响应包含每个提供商的唯一 ID 与显示名称。您可在后续调用（例如 [List Games](https://docs.igamingace.com/zh/mainapi/game-list)）中使用此处返回的 providerId 值。
+## Request
+
+```bash
+GET /v1/provider/list
+```
+
+### Headers
+
+| Name | Value |
+| :-- | :-- |
+| `Authorization` | `Bearer <API_TOKEN>` |
+| `Content-Type` | `application/json` |
+| `Accept` | `application/json` |
+
+此端点不接受查询参数或请求体。
+
+## Example Request
+
+```bash
+curl --request GET \
+  --url https://api.gamecompany.com/v1/provider/list \
+  --header "Authorization: Bearer <API_TOKEN>" \
+  --header "Accept: application/json" \
+  --header "Content-Type: application/json"
+```
+
+## Response
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": [
+    {
+      "providerId": 1,
+      "providerName": "Pragmatic Play"
+    },
+    {
+      "providerId": 2,
+      "providerName": "PG Soft"
+    }
+  ]
+}
+```
+
+### Response Fields
+
+<ResponseField name="success" type="bool">
+  指示请求是否已成功处理。
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  请求结果消息（例如 `"OK"`）。
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  您运营商账户可用的游戏提供商列表。
+
+  <Expandable title="data[]">
+    <ResponseField name="providerId" type="number">
+      提供商的唯一标识符。请在其他端点的 `providerId` 参数中使用该值。
+    </ResponseField>
+
+    <ResponseField name="providerName" type="string">
+      提供商的显示名称 (例如 `"Pragmatic Play"`).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
